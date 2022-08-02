@@ -12,18 +12,23 @@ def allPulls(releaseDate):
     baseurl = "https://api.github.com/repos/swagger-api/swagger-core/pulls/"
     content = ghApiClient.readUrl('repos/swagger-api/swagger-core/pulls?state=closed&base=master&per_page=100')
     for l in content:
-      stripped = l["url"][len(baseurl):]
-      mergedAt = l["merged_at"]
-      if mergedAt is not None:
-          if datetime.strptime(mergedAt, '%Y-%m-%dT%H:%M:%SZ') > releaseDate:
-              if not l['title'].startswith("bump snap"):
-                result += '\n'
-                result += "* " + l['title'] + " (#" + stripped + ")"
+        stripped = l["url"][len(baseurl):]
+        mergedAt = l["merged_at"]
+        if (
+            mergedAt is not None
+            and datetime.strptime(mergedAt, '%Y-%m-%dT%H:%M:%SZ') > releaseDate
+            and not l['title'].startswith("bump snap")
+        ):
+            result += '\n'
+            result += "* " + l['title'] + " (#" + stripped + ")"
     return result
 
 
 def lastReleaseDate(tag):
-    content = ghApiClient.readUrl('repos/swagger-api/swagger-core/releases/tags/' + tag)
+    content = ghApiClient.readUrl(
+        f'repos/swagger-api/swagger-core/releases/tags/{tag}'
+    )
+
     publishedAt = content["published_at"]
     return datetime.strptime(publishedAt, '%Y-%m-%dT%H:%M:%SZ')
 
@@ -39,12 +44,11 @@ def addRelease(release_title, tag, content):
     return content
 
 def getReleases():
-    content = ghApiClient.readUrl('repos/swagger-api/swagger-core/releases')
-    return content
+    return ghApiClient.readUrl('repos/swagger-api/swagger-core/releases')
 
 # main
 def main(last_release, release_title, tag):
-    result = allPulls(lastReleaseDate('v' + last_release))
+    result = allPulls(lastReleaseDate(f'v{last_release}'))
     addRelease (release_title, tag, result)
 
 # here start main

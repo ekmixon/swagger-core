@@ -9,7 +9,7 @@ import json
 GH_BASE_URL = "https://api.github.com/"
 
 GH_TOKEN = os.environ['GH_TOKEN']
-GH_AUTH = "Bearer %s" % GH_TOKEN
+GH_AUTH = f"Bearer {GH_TOKEN}"
 
 def readUrl(name):
     try:
